@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#10231f" />
+  <meta name="description" content="Vitalia — organiza y registra tu plan personal de cuidado y suplementación." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%2310231f'/%3E%3Cpath d='M29 31h17v25c0 7 3 11 9 11 6 0 9-4 9-11V31h17v26c0 17-10 25-26 25S29 74 29 57V31Z' fill='white'/%3E%3C/svg%3E" />
+  <title>Vitalia</title>
+  <style>
+    :root {
+      --bg: #f5f7f4;
+      --surface: #ffffff;
+      --surface-2: #edf2ee;
+      --ink: #17221f;
+      --muted: #66726e;
+      --line: #dde5e0;
+      --accent: #1e6a58;
+      --accent-2: #dceddf;
+      --warning: #9a6515;
+      --warning-bg: #fff5df;
+      --danger: #a83b3b;
+      --danger-bg: #fdeaea;
+      --shadow: 0 10px 28px rgba(18, 36, 31, .07);
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app-shell { min-height: 100vh; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding: 16px clamp(16px, 4vw, 44px);
+      background: rgba(245, 247, 244, .9); backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(221,229,224,.9);
+    }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .logo {
+      width: 40px; height: 40px; border-radius: 13px; display:grid; place-items:center;
+      background: var(--ink); color:#fff; font-weight: 800; letter-spacing:-.05em;
+    }
+    .brand strong { font-size: 18px; }
+    .brand small { display:block; color: var(--muted); font-size: 11px; margin-top: 1px; }
+    .top-actions { display:flex; align-items:center; gap:8px; }
+    .icon-btn, .text-btn, .primary-btn, .secondary-btn, .danger-btn {
+      border: 0; border-radius: 12px; padding: 10px 14px; font-weight: 700;
+    }
+    .icon-btn { background: var(--surface); border:1px solid var(--line); width: 42px; height:42px; padding:0; }
+    .primary-btn { background: var(--accent); color:#fff; }
+    .secondary-btn { background: var(--surface-2); color: var(--ink); }
+    .danger-btn { background: var(--danger-bg); color: var(--danger); }
+    .text-btn { padding: 8px 10px; background: transparent; color: var(--accent); }
+    .layout { display:grid; grid-template-columns: 250px minmax(0,1fr); min-height: calc(100vh - 73px); }
+    .sidebar { padding: 22px 14px; border-right:1px solid var(--line); background: rgba(255,255,255,.55); }
+    .nav { display:grid; gap: 7px; position: sticky; top: 95px; }
+    .nav-btn {
+      border: 0; background:transparent; text-align:left; padding: 12px 14px; border-radius: 12px;
+      color: var(--muted); font-weight: 700;
+    }
+    .nav-btn:hover, .nav-btn.active { background: var(--surface-2); color: var(--ink); }
+    .main { padding: clamp(22px, 4vw, 42px); max-width: 1320px; width:100%; margin:0 auto; }
+    .view { display:none; }
+    .view.active { display:block; }
+    .page-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-end; margin-bottom:24px; }
+    h1 { margin:0; font-size:clamp(26px,4vw,38px); letter-spacing:-.035em; }
+    h2 { margin:0; font-size:22px; letter-spacing:-.025em; }
+    h3 { margin:0; font-size:17px; }
+    p { line-height:1.55; }
+    .muted { color: var(--muted); }
+    .small { font-size: 13px; }
+    .grid { display:grid; gap:16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .card {
+      background: var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #10231f 0%, #21483c 100%); color:#fff; border-radius:28px; padding:28px;
+      box-shadow:var(--shadow); margin-bottom:18px;
+    }
+    .hero-row { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; }
+    .hero h1 { max-width: 760px; }
+    .hero p { color: rgba(255,255,255,.76); max-width: 740px; margin: 10px 0 0; }
+    .hero .badge { background: rgba(255,255,255,.12); color:#fff; }
+    .stats { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; }
+    .stat { padding:17px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.13); border-radius:17px; }
+    .stat strong { display:block; font-size:26px; margin-top:6px; }
+    .stat span { color:rgba(255,255,255,.7); font-size:12px; }
+    .section-head { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:12px; }
+    .badge { display:inline-flex; align-items:center; gap:6px; background:var(--accent-2); color:var(--accent); border-radius:999px; padding:6px 10px; font-size:12px; font-weight:800; }
+    .warning { background:var(--warning-bg); border:1px solid #f0dca8; color: #704912; }
+    .danger { background:var(--danger-bg); border:1px solid #f2cccc; color:var(--danger); }
+    .success { background:#e8f5eb; border:1px solid #cce8d2; color:#246b35; }
+    .item-list { display:grid; gap:10px; }
+    .item {
+      display:flex; justify-content:space-between; gap:14px; align-items:center; padding:15px;
+      background:var(--surface-2); border:1px solid transparent; border-radius:15px;
+    }
+    .item:hover { border-color:var(--line); background:#f4f7f4; }
+    .item-main { min-width:0; }
+    .item-main strong { display:block; margin-bottom:3px; }
+    .item-main span { color:var(--muted); font-size:12px; }
+    .actions { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse:collapse; min-width:700px; }
+    th,td { text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); font-size:13px; vertical-align:top; }
+    th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.07em; }
+    .progress { height:9px; border-radius:999px; background:#e8ece9; overflow:hidden; }
+    .progress > span { display:block; height:100%; background:var(--accent); border-radius:999px; }
+    .timeline { display:grid; gap:12px; }
+    .timeline-item { position:relative; padding:16px 16px 16px 22px; border-left:3px solid var(--accent-2); }
+    .timeline-item::before { content:""; width:10px; height:10px; border-radius:50%; background:var(--accent); position:absolute; left:-6px; top:20px; }
+    .empty { padding:28px; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:17px; }
+    .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    label { display:grid; gap:7px; font-size:12px; font-weight:800; color:#36423f; }
+    input, select, textarea {
+      width:100%; border:1px solid var(--line); background:#fff; border-radius:12px; padding:11px 12px; color:var(--ink); outline:none;
+    }
+    input:focus, select:focus, textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(30,106,88,.1); }
+    textarea { min-height:88px; resize:vertical; }
+    .form-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
+    .modal { position:fixed; inset:0; background:rgba(9,20,17,.42); display:none; place-items:center; z-index:60; padding:20px; }
+    .modal.open { display:grid; }
+    .modal-box { width:min(760px,100%); max-height:90vh; overflow:auto; background:var(--surface); border-radius:24px; box-shadow:0 28px 70px rgba(0,0,0,.25); padding:24px; }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+    .close { border:0; background:var(--surface-2); width:36px; height:36px; border-radius:10px; font-size:18px; }
+    .toast { position:fixed; right:18px; bottom:18px; z-index:80; display:none; padding:13px 15px; border-radius:12px; background:var(--ink); color:#fff; box-shadow:var(--shadow); max-width:360px; }
+    .toast.show { display:block; animation:fade .2s ease-out; }
+    @keyframes fade { from { transform:translateY(6px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+    .health-note { font-size:12px; color:var(--muted); background:var(--surface-2); border-radius:14px; padding:12px 14px; }
+    .kpi { display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid var(--line); }
+    .kpi:last-child { border-bottom:0; }
+    .pill-row { display:flex; gap:7px; flex-wrap:wrap; }
+    .day { text-align:center; padding:10px 8px; border:1px solid var(--line); border-radius:13px; background:#fff; }
+    .day strong { display:block; font-size:17px; margin-top:3px; }
+    .dot { width:7px; height:7px; border-radius:50%; background:var(--accent); margin:7px auto 0; }
+    .mobile-nav { display:none; }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display:none; }
+      .mobile-nav { display:flex; position:sticky; bottom:0; z-index:30; background:rgba(255,255,255,.95); border-top:1px solid var(--line); padding:8px; gap:5px; justify-content:space-around; backdrop-filter:blur(14px); }
+      .mobile-nav button { border:0; background:transparent; color:var(--muted); font-size:11px; font-weight:800; padding:8px 10px; border-radius:10px; }
+      .mobile-nav button.active { color:var(--accent); background:var(--accent-2); }
+      .stats, .grid-3 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 660px) {
+      .topbar { padding:12px 14px; }
+      .main { padding:18px 14px 26px; }
+      .page-head, .hero-row { flex-direction:column; align-items:stretch; }
+      .grid-2, .form-grid, .stats, .grid-3 { grid-template-columns:1fr; }
+      .hero { padding:22px; border-radius:22px; }
+      .item { align-items:flex-start; flex-direction:column; }
+      .actions { justify-content:flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">V</div>
+        <div><strong>Vitalia</strong><small>Plan personal de bienestar</small></div>
+      </div>
+      <div class="top-actions">
+        <button id="notificationBtn" class="icon-btn" title="Activar notificaciones">🔔</button>
+        <button id="addBtn" class="primary-btn">+ Añadir</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <nav id="sidebarNav" class="nav">
+          <button class="nav-btn active" data-view="inicio">Inicio</button>
+          <button class="nav-btn" data-view="plan">Plan actual</button>
+          <button class="nav-btn" data-view="registro">Registro</button>
+          <button class="nav-btn" data-view="evolucion">Evolución</button>
+          <button class="nav-btn" data-view="inventario">Inventario</button>
+          <button class="nav-btn" data-view="revisiones">Revisiones</button>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <section id="inicio" class="view active"></section>
+        <section id="plan" class="view"></section>
+        <section id="registro" class="view"></section>
+        <section id="evolucion" class="view"></section>
+        <section id="inventario" class="view"></section>
+        <section id="revisiones" class="view"></section>
+      </main>
+    </div>
+
+    <nav id="mobileNav" class="mobile-nav">
+      <button data-view="inicio" class="active">Inicio</button>
+      <button data-view="plan">Plan</button>
+      <button data-view="registro">Registro</button>
+      <button data-view="evolucion">Evolución</button>
+      <button data-view="inventario">Stock</button>
+      <button data-view="revisiones">Revisión</button>
+    </nav>
+  </div>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div id="modalBox" class="modal-box"></div>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const KEY = 'vitalia_data_v1';
+    const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const nowISO = () => new Date().toISOString();
+    const today = () => new Date().toISOString().slice(0,10);
+    const addDays = (dateStr, days) => { const d = new Date(dateStr + 'T12:00:00'); d.setDate(d.getDate()+Number(days)); return d.toISOString().slice(0,10); };
+    const fmtDate = (v) => v ? new Intl.DateTimeFormat('es-PE', { day:'2-digit', month:'short', year:'numeric' }).format(new Date(v+'T12:00:00')) : '—';
+    const fmtDateTime = (v) => v ? new Intl.DateTimeFormat('es-PE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }).format(new Date(v)) : '—';
+    const esc = (v='') => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const daysBetween = (a,b) => Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000);
+
+    const seed = {
+      settings: { notifications: false },
+      products: [
+        { id: uid(), name:'Vitamina D', type:'Vitamina', dose:'Según indicación profesional', frequency:'1 vez al día', time:'08:00', start:today(), review:addDays(today(),15), end:'', stock:30, unit:'cápsulas', consumption:1, prescriber:'Profesional de salud', notes:'Registrar tolerancia y observaciones.' },
+        { id: uid(), name:'Producto natural', type:'Producto natural', dose:'Según indicación profesional', frequency:'1 vez al día', time:'13:00', start:today(), review:addDays(today(),15), end:'', stock:15, unit:'porciones', consumption:1, prescriber:'Profesional de salud', notes:'' }
+      ],
+      stages: [
+        { id:uid(), title:'Etapa inicial', start:today(), review:addDays(today(),15), status:'Activa', note:'Consolidar el plan actual antes de incorporar nuevos productos.' }
+      ],
+      intake: [],
+      observations: [],
+      reviews: []
+    };
+
+    let data = load();
+    let currentView = 'inicio';
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (!raw) return seed;
+        const parsed = JSON.parse(raw);
+        return { ...seed, ...parsed, settings:{...seed.settings,...parsed.settings}, products:parsed.products || [], stages:parsed.stages || [], intake:parsed.intake || [], observations:parsed.observations || [], reviews:parsed.reviews || [] };
+      } catch { return seed; }
+    }
+    function save() { localStorage.setItem(KEY, JSON.stringify(data)); render(); }
+    function toast(msg) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 2600); }
+    function openModal(html) { const m=document.getElementById('modal'); document.getElementById('modalBox').innerHTML=html; m.classList.add('open'); m.setAttribute('aria-hidden','false'); }
+    function closeModal() { const m=document.getElementById('modal'); m.classList.remove('open'); m.setAttribute('aria-hidden','true'); }
+    function nav(view) { currentView=view; document.querySelectorAll('.view').forEach(x=>x.classList.remove('active')); document.getElementById(view).classList.add('active'); document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===view)); renderView(view); window.scrollTo({top:0,behavior:'smooth'}); }
+    function render() { renderView(currentView); }
+    function renderView(view) {
+      const fn = {inicio:renderInicio,plan:renderPlan,registro:renderRegistro,evolucion:renderEvolucion,inventario:renderInventario,revisiones:renderRevisiones}[view];
+      if (fn) fn();
+    }
+    function completionRate(days=7) {
+      const start = addDays(today(), -(days-1));
+      const due = data.products.filter(p => p.start <= today()).reduce((n,p)=>n+days,0);
+      const done = data.intake.filter(i=>i.status==='Tomado' && i.at >= start && i.at <= today()).length;
+      return due ? Math.min(100, Math.round(done / due * 100)) : 0;
+    }
+    function currentStage() { return data.stages.find(s=>s.status==='Activa') || data.stages[0]; }
+    function stockStatus(p) { const daily=Math.max(0,Number(p.consumption)||0); if (!daily) return {days:null,label:'Sin cálculo',cls:''}; const days=Math.floor(Number(p.stock)/daily); if(days<=3) return {days,label:'Agotamiento inminente',cls:'danger'}; if(days<=7) return {days,label:'Comprar pronto',cls:'warning'}; return {days,label:`Aprox. ${days} días`,cls:'success'}; }
+    function dueProducts() { return data.products.filter(p=>p.start<=today()); }
+    function nextReview() { const list=data.products.filter(p=>p.review && p.review>=today()).sort((a,b)=>a.review.localeCompare(b.review)); return list[0] || null; }
+
+    function header(title,subtitle='',action='') { return `<div class="page-head"><div><h1>${title}</h1>${subtitle?`<p class="muted" style="margin:7px 0 0">${subtitle}</p>`:''}</div>${action}</div>`; }
+    function renderInicio() {
+      const stage=currentStage(); const stockAlerts=data.products.map(p=>({p,s:stockStatus(p)})).filter(x=>x.s.days!==null && x.s.days<=7); const review=nextReview(); const rate=completionRate(7);
+      document.getElementById('inicio').innerHTML = `
+        <div class="hero">
+          <div class="hero-row">
+            <div><span class="badge">${stage ? 'Etapa activa' : 'Sin etapa activa'}</span><h1 style="margin-top:12px">Cuidar tu salud no debería convertirse en otra carga.</h1><p>Vitalia organiza lo que ya estás siguiendo, registra lo que ocurre y te ayuda a llegar preparada a cada revisión.</p></div>
+            <button class="secondary-btn" style="align-self:flex-start" onclick="openStageModal()">+ Nueva etapa</button>
+          </div>
+          <div class="stats" style="margin-top:22px">
+            <div class="stat"><span>Productos activos</span><strong>${dueProducts().length}</strong></div>
+            <div class="stat"><span>Registro últimos 7 días</span><strong>${rate}%</strong></div>
+            <div class="stat"><span>Observaciones</span><strong>${data.observations.length}</strong></div>
+            <div class="stat"><span>Próxima revisión</span><strong>${review ? Math.max(0,daysBetween(today(),review.review))+'d' : '—'}</strong></div>
+          </div>
+        </div>
+
+        ${stockAlerts.length ? `<div class="card warning" style="margin-bottom:16px"><div class="section-head"><h3>Abastecimiento</h3><span class="small">${stockAlerts.length} aviso(s)</span></div><div class="item-list">${stockAlerts.map(({p,s})=>`<div class="item" style="background:transparent"><div class="item-main"><strong>${esc(p.name)}</strong><span>${s.label}. Quedan ${p.stock} ${esc(p.unit)}.</span></div><button class="secondary-btn" onclick="openProductModal('${p.id}')">Ver</button></div>`).join('')}</div></div>` : ''}
+
+        <div class="grid grid-2">
+          <div class="card"><div class="section-head"><h2>Hoy</h2><span class="badge">${fmtDate(today())}</span></div>
+            <div class="item-list">${dueProducts().slice(0,6).map(p=>{const done=data.intake.some(i=>i.productId===p.id && i.at.slice(0,10)===today() && i.status==='Tomado');return `<div class="item"><div class="item-main"><strong>${esc(p.name)}</strong><span>${esc(p.frequency)} · ${p.time || 'hora libre'}</span></div><button class="${done?'success':'primary-btn'}" onclick="toggleIntake('${p.id}')">${done?'Registrado':'Registrar'}</button></div>`}).join('') || '<div class="empty">No hay productos activos para registrar hoy.</div>'}</div>
+          </div>
+          <div class="card"><div class="section-head"><h2>Próxima revisión</h2><button class="text-btn" onclick="nav('revisiones')">Ver todas</button></div>
+            ${review?`<div class="kpi"><span>${esc(review.name)}</span><strong>${fmtDate(review.review)}</strong></div><p class="muted small">La revisión sirve para comparar el plan con tu experiencia y con las indicaciones profesionales. Vitalia no realiza diagnóstico.</p>`:'<div class="empty">Todavía no has programado una revisión.</div>'}
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px"><div class="section-head"><h2>Principio del MVP</h2><span class="badge">Evidencia primero</span></div><p style="margin:0">Vitalia registra decisiones y resultados. No sustituye a un médico, nutricionista u otro profesional de salud.</p></div>
+      `;
+    }
+
+    function renderPlan() {
+      const stage=currentStage();
+      document.getElementById('plan').innerHTML = header('Plan actual','Organiza la incorporación progresiva. Las decisiones clínicas deben venir de un profesional de salud.', '<button class="primary-btn" onclick="openProductModal()">+ Añadir producto</button>') + `
+        ${stage ? `<div class="card" style="margin-bottom:16px"><div class="section-head"><div><span class="badge">${esc(stage.status)}</span><h2 style="margin-top:8px">${esc(stage.title)}</h2></div><button class="text-btn" onclick="completeStage('${stage.id}')">Cerrar etapa</button></div><div class="grid grid-3"><div><div class="muted small">Inicio</div><strong>${fmtDate(stage.start)}</strong></div><div><div class="muted small">Revisión</div><strong>${fmtDate(stage.review)}</strong></div><div><div class="muted small">Productos</div><strong>${dueProducts().length}</strong></div></div>${stage.note?`<p class="muted small" style="margin-bottom:0">${esc(stage.note)}</p>`:''}</div>`:''}
+        <div class="card"><div class="section-head"><h2>Productos de esta etapa</h2><span class="muted small">${dueProducts().length} activos</span></div><div class="item-list">${data.products.map(p=>`<div class="item"><div class="item-main"><strong>${esc(p.name)}</strong><span>${esc(p.type)} · ${esc(p.dose)} · ${esc(p.frequency)} · ${p.time||'sin hora'}</span><span>Inicio ${fmtDate(p.start)} · Revisión ${fmtDate(p.review)}</span></div><div class="actions"><button class="secondary-btn" onclick="openProductModal('${p.id}')">Editar</button><button class="danger-btn" onclick="removeProduct('${p.id}')">Eliminar</button></div></div>`).join('') || '<div class="empty">Añade el primer producto indicado en el plan.</div>'}</div></div>
+        <div class="health-note" style="margin-top:14px"><strong>Nota de seguridad:</strong> Vitalia es una herramienta de organización y seguimiento. No determina dosis, necesidades nutricionales, interacciones ni tratamientos.</div>`;
+    }
+
+    function renderRegistro() {
+      const last=data.intake.slice().sort((a,b)=>b.at.localeCompare(a.at)).slice(0,30);
+      document.getElementById('registro').innerHTML=header('Registro','Cada registro responde a una pregunta sencilla: ¿qué ocurrió realmente?','<button class="primary-btn" onclick="openObservationModal()">+ Registrar observación</button>')+`
+        <div class="grid grid-2"><div class="card"><div class="section-head"><h2>Hoy</h2><span class="badge">${fmtDate(today())}</span></div><div class="item-list">${dueProducts().map(p=>{const latest=data.intake.filter(i=>i.productId===p.id&&i.at.slice(0,10)===today()).sort((a,b)=>b.at.localeCompare(a.at))[0];return `<div class="item"><div class="item-main"><strong>${esc(p.name)}</strong><span>${esc(p.frequency)} · ${p.time||'hora libre'}</span></div><div class="actions"><button class="${latest?.status==='Tomado'?'success':'primary-btn'}" onclick="toggleIntake('${p.id}')">${latest?.status==='Tomado'?'Tomado':'Registrar toma'}</button>${latest?`<button class="secondary-btn" onclick="removeIntake('${latest.id}')">Deshacer</button>`:''}</div></div>`}).join('')||'<div class="empty">Sin productos activos.</div>'}</div></div>
+        <div class="card"><div class="section-head"><h2>Últimos registros</h2><span class="muted small">${last.length}</span></div>${last.length?`<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Producto</th><th>Estado</th><th>Hora</th></tr></thead><tbody>${last.map(i=>`<tr><td>${fmtDateTime(i.at)}</td><td>${esc(data.products.find(p=>p.id===i.productId)?.name || 'Producto eliminado')}</td><td><span class="badge">${esc(i.status)}</span></td><td>${esc(i.note||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Aún no hay registros de consumo.</div>'}</div></div>`;
+    }
+
+    function renderEvolucion() {
+      const obs=data.observations.slice().sort((a,b)=>b.at.localeCompare(a.at)); const totalDays=Math.max(1, daysBetween(currentStage()?.start || today(), today())+1); const taken=data.intake.filter(i=>i.status==='Tomado' && i.at.slice(0,10)>= (currentStage()?.start || today())).length; const rate=Math.min(100,Math.round(taken/(Math.max(1,dueProducts().length)*totalDays)*100));
+      document.getElementById('evolucion').innerHTML=header('Evolución','Observa el proceso sin atribuir causalidad médica a un producto por sí solo.','<button class="primary-btn" onclick="openObservationModal()">+ Nueva observación</button>')+`
+        <div class="grid grid-3"><div class="card"><div class="muted small">Continuidad desde la etapa</div><strong style="font-size:30px">${rate}%</strong><div class="progress" style="margin-top:10px"><span style="width:${rate}%"></span></div></div><div class="card"><div class="muted small">Registros de toma</div><strong style="font-size:30px">${data.intake.length}</strong><p class="muted small" style="margin:3px 0 0">Historial acumulado</p></div><div class="card"><div class="muted small">Observaciones</div><strong style="font-size:30px">${obs.length}</strong><p class="muted small" style="margin:3px 0 0">Cambios y sensaciones registradas</p></div></div>
+        <div class="card" style="margin-top:16px"><div class="section-head"><h2>Historial de observaciones</h2><span class="muted small">${obs.length}</span></div><div class="timeline">${obs.map(o=>`<div class="timeline-item"><div class="section-head" style="margin-bottom:5px"><strong>${fmtDateTime(o.at)}</strong><button class="text-btn" onclick="removeObservation('${o.id}')">Eliminar</button></div><h3>${esc(o.title)}</h3><p style="margin:6px 0">${esc(o.text)}</p>${o.tags?.length?`<div class="pill-row">${o.tags.map(t=>`<span class="badge">${esc(t)}</span>`).join('')}</div>`:''}</div>`).join('') || '<div class="empty">Todavía no hay observaciones. Registra cómo te sientes o qué cambio ocurrió.</div>'}</div></div>`;
+    }
+
+    function renderInventario() {
+      document.getElementById('inventario').innerHTML=header('Inventario','Evita que un producto se termine sin que te hayas dado cuenta.','<button class="primary-btn" onclick="openProductModal()">+ Añadir producto</button>')+`
+        <div class="grid grid-2">${data.products.map(p=>{const s=stockStatus(p); return `<div class="card"><div class="section-head"><div><span class="badge">${esc(p.type)}</span><h2 style="margin-top:8px">${esc(p.name)}</h2></div><button class="text-btn" onclick="openProductModal('${p.id}')">Editar</button></div><div class="grid grid-2"><div><div class="muted small">Existencia</div><strong style="font-size:26px">${p.stock}</strong> ${esc(p.unit)}</div><div><div class="muted small">Consumo diario</div><strong style="font-size:26px">${p.consumption||0}</strong></div></div><div style="margin:15px 0"><div class="progress"><span style="width:${Math.min(100,(p.stock/Math.max(1,(p.consumption||1)*30))*100)}%"></span></div></div><div class="kpi"><span>Estado</span><span class="badge ${s.cls}">${s.label}</span></div><div class="kpi"><span>Recordatorio de compra</span><strong>${s.days===null?'—':s.days<=7?'Activado':'Programado'}</strong></div></div>`}).join('') || '<div class="card"><div class="empty">Añade un producto para controlar existencias.</div></div>'}</div>`;
+    }
+
+    function renderRevisiones() {
+      const reviews=data.reviews.slice().sort((a,b)=>b.at.localeCompare(a.at));
+      document.getElementById('revisiones').innerHTML=header('Revisiones','Puntos de control para comparar plan, registros y experiencia.','<button class="primary-btn" onclick="openReviewModal()">+ Registrar revisión</button>')+`
+        <div class="grid grid-2"><div class="card"><div class="section-head"><h2>Próximos puntos de control</h2></div><div class="item-list">${data.products.filter(p=>p.review).sort((a,b)=>a.review.localeCompare(b.review)).map(p=>`<div class="item"><div class="item-main"><strong>${esc(p.name)}</strong><span>Revisión: ${fmtDate(p.review)}</span></div><span class="badge">${daysBetween(today(),p.review)} días</span></div>`).join('')||'<div class="empty">No hay revisiones programadas.</div>'}</div></div><div class="card"><div class="section-head"><h2>Revisiones realizadas</h2><span class="muted small">${reviews.length}</span></div>${reviews.map(r=>`<div class="timeline-item"><strong>${fmtDateTime(r.at)}</strong><h3 style="margin-top:6px">${esc(r.title)}</h3><p style="margin:5px 0">${esc(r.text)}</p></div>`).join('')||'<div class="empty">Aún no has registrado una revisión.</div>'}</div></div>`;
+    }
+
+    function productForm(p) {
+      const x=p||{name:'',type:'Vitamina',dose:'',frequency:'1 vez al día',time:'08:00',start:today(),review:addDays(today(),15),end:'',stock:30,unit:'unidades',consumption:1,prescriber:'',notes:''};
+      return `<div class="modal-head"><div><span class="badge">${p?'Editar':'Nuevo'}</span><h2 style="margin-top:7px">Producto del plan</h2></div><button class="close" onclick="closeModal()">×</button></div><form id="productForm"><div class="form-grid"><label>Nombre<input name="name" required value="${esc(x.name)}" placeholder="Ej. Vitamina D"></label><label>Tipo<select name="type"><option ${x.type==='Vitamina'?'selected':''}>Vitamina</option><option ${x.type==='Mineral'?'selected':''}>Mineral</option><option ${x.type==='Suplemento'?'selected':''}>Suplemento</option><option ${x.type==='Producto natural'?'selected':''}>Producto natural</option><option ${x.type==='Otro'?'selected':''}>Otro</option></select></label><label>Dosis indicada<input name="dose" value="${esc(x.dose)}" placeholder="Según indicación profesional"></label><label>Frecuencia<input name="frequency" value="${esc(x.frequency)}"></label><label>Hora<input type="time" name="time" value="${esc(x.time)}"></label><label>Inicio<input type="date" name="start" value="${x.start}"></label><label>Fecha de revisión<input type="date" name="review" value="${x.review}"></label><label>Fin (opcional)<input type="date" name="end" value="${x.end||''}"></label><label>Existencia<input type="number" min="0" name="stock" value="${x.stock}"></label><label>Unidad<input name="unit" value="${esc(x.unit)}" placeholder="cápsulas, porciones..."></label><label>Consumo diario<input type="number" min="0" step="0.1" name="consumption" value="${x.consumption}"></label><label>Profesional que indicó<input name="prescriber" value="${esc(x.prescriber)}"></label></div><label style="margin-top:14px">Notas<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="health-note" style="margin-top:14px">La dosis y el producto deben corresponder a una indicación profesional. Esta app no calcula ni recomienda tratamientos.</div><div class="form-actions"><button type="button" class="secondary-btn" onclick="closeModal()">Cancelar</button><button class="primary-btn" type="submit">Guardar</button></div></form>`;
+    }
+    function openProductModal(id){ const p=data.products.find(x=>x.id===id); openModal(productForm(p)); document.getElementById('productForm').onsubmit=e=>{e.preventDefault(); const f=new FormData(e.target); const obj=Object.fromEntries(f.entries()); obj.stock=Number(obj.stock)||0; obj.consumption=Number(obj.consumption)||0; if(id){Object.assign(p,obj)}else{data.products.push({id:uid(),...obj})} save(); closeModal(); toast(id?'Producto actualizado':'Producto añadido');}; }
+    function removeProduct(id){ if(!confirm('¿Eliminar este producto del plan?')) return; data.products=data.products.filter(p=>p.id!==id); data.intake=data.intake.filter(i=>i.productId!==id); save(); toast('Producto eliminado'); }
+
+    function openObservationModal(){ openModal(`<div class="modal-head"><div><span class="badge">Evolución</span><h2 style="margin-top:7px">Nueva observación</h2></div><button class="close" onclick="closeModal()">×</button></div><form id="obsForm"><label>Título<input name="title" required placeholder="Ej. Me sentí con más energía"></label><label style="margin-top:12px">Qué ocurrió<textarea name="text" required placeholder="Describe lo observado, sin intentar diagnosticarlo."></textarea></label><label style="margin-top:12px">Etiquetas<input name="tags" placeholder="energía, tolerancia, sueño"></label><div class="form-actions"><button type="button" class="secondary-btn" onclick="closeModal()">Cancelar</button><button class="primary-btn">Guardar</button></div></form>`); document.getElementById('obsForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);data.observations.push({id:uid(),at:nowISO(),title:f.get('title'),text:f.get('text'),tags:String(f.get('tags')||'').split(',').map(x=>x.trim()).filter(Boolean)});save();closeModal();toast('Observación registrada');}; }
+    function removeObservation(id){data.observations=data.observations.filter(x=>x.id!==id);save();toast('Observación eliminada');}
+
+    function toggleIntake(productId){ const existing=data.intake.find(i=>i.productId===productId&&i.at.slice(0,10)===today()&&i.status==='Tomado'); if(existing){ removeIntake(existing.id); return; } const p=data.products.find(x=>x.id===productId); data.intake.push({id:uid(),productId,at:nowISO(),status:'Tomado',note:p?.time?`Programado ${p.time}`:''}); if(p && p.stock>0){p.stock=Math.max(0,Number(p.stock)-1);} save(); toast(`${p?.name||'Producto'} registrado`); }
+    function removeIntake(id){const i=data.intake.find(x=>x.id===id);const p=data.products.find(x=>x.id===i?.productId);if(p)p.stock=Number(p.stock)+1;data.intake=data.intake.filter(x=>x.id!==id);save();toast('Registro deshecho');}
+
+    function openStageModal(){openModal(`<div class="modal-head"><div><span class="badge">Plan</span><h2 style="margin-top:7px">Nueva etapa</h2></div><button class="close" onclick="closeModal()">×</button></div><form id="stageForm"><div class="form-grid"><label>Nombre<input name="title" required placeholder="Ej. Etapa 2"></label><label>Inicio<input type="date" name="start" value="${today()}"></label><label>Revisión<input type="date" name="review" value="${addDays(today(),15)}"></label><label>Nota<input name="note" placeholder="Qué se busca revisar"></label></div><div class="form-actions"><button type="button" class="secondary-btn" onclick="closeModal()">Cancelar</button><button class="primary-btn">Crear etapa</button></div></form>`);document.getElementById('stageForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);data.stages.forEach(s=>s.status='Cerrada');data.stages.push({id:uid(),title:f.get('title'),start:f.get('start'),review:f.get('review'),status:'Activa',note:f.get('note')});save();closeModal();toast('Nueva etapa creada');};}
+    function completeStage(id){const s=data.stages.find(x=>x.id===id);if(!s)return;s.status='Cerrada';save();toast('Etapa cerrada. Puedes iniciar otra cuando corresponda.');}
+
+    function openReviewModal(){openModal(`<div class="modal-head"><div><span class="badge">Punto de control</span><h2 style="margin-top:7px">Registrar revisión</h2></div><button class="close" onclick="closeModal()">×</button></div><form id="reviewForm"><label>Título<input name="title" required placeholder="Ej. Revisión de etapa inicial"></label><label style="margin-top:12px">Resultado observado<textarea name="text" required placeholder="Resume qué pasó, qué cambió y qué quedó pendiente."></textarea></label><div class="form-actions"><button type="button" class="secondary-btn" onclick="closeModal()">Cancelar</button><button class="primary-btn">Guardar revisión</button></div></form>`);document.getElementById('reviewForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);data.reviews.push({id:uid(),at:nowISO(),title:f.get('title'),text:f.get('text')});save();closeModal();toast('Revisión registrada');};}
+
+    async function enableNotifications(){
+      if(!('Notification' in window)){toast('Este navegador no ofrece notificaciones.');return;}
+      const permission=await Notification.requestPermission();
+      if(permission==='granted'){data.settings.notifications=true;save();new Notification('Vitalia',{body:'Notificaciones activadas. Recibirás avisos cuando uses la app y haya recordatorios relevantes.'});toast('Notificaciones activadas');}
+      else toast('Permiso de notificaciones no concedido');
+    }
+    function reminderCheck(){ if(!data.settings.notifications || !('Notification' in window) || Notification.permission!=='granted') return; const hour=new Date().getHours(); data.products.filter(p=>p.start<=today()).forEach(p=>{const s=stockStatus(p); if(s.days!==null&&s.days<=3){ const key='notified_stock_'+p.id+'_'+today(); if(!localStorage.getItem(key)){new Notification('Vitalia · abastecimiento',{body:`${p.name} podría agotarse en ${s.days} día(s).`});localStorage.setItem(key,'1');} } if(p.time && Number(p.time.split(':')[0])===hour){ const key='notified_take_'+p.id+'_'+today()+'_'+p.time; if(!localStorage.getItem(key)){new Notification('Vitalia · recordatorio',{body:`Es momento de registrar ${p.name}.`});localStorage.setItem(key,'1');} }}); }
+
+    document.addEventListener('click',e=>{const btn=e.target.closest('[data-view]');if(btn){nav(btn.dataset.view);} if(e.target.id==='addBtn'){openProductModal();} if(e.target.id==='notificationBtn'){enableNotifications();} if(e.target.id==='modal'){closeModal();}});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+    setInterval(reminderCheck,60000);
+    render();
+    reminderCheck();
+    if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+  </script>
+</body>
+</html>
